@@ -58,7 +58,7 @@ public:
 	 * \param action An instance of QLAction
 	 */
 	double lookupStateAndAction(QLLib::QLState state, QLLib::QLAction action) {
-		return _lookupTable[QLStateAction(state, action)];
+		return _lookupTable.at(QLStateAction(state, action));
 	};
 private:
 	DataMap _lookupTable;

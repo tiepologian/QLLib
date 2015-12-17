@@ -81,29 +81,30 @@ private:
 	void loop() {
 		_stepsPerTrial = 0;
 		_rewardsPerTrial = 0.0;
+		QLLib::QLAgent *myAgent = _problem->getAgent();
 		while (!_trialEnded) {
 			_stepsPerTrial++;
 			_totalSteps++;
 			// Run the algorithm and get the resulting action
-			QLLib::QLAction *actionTaken = _problem->getAlgorithm()->step(_problem->getAgent()->getCurrentState());
+			QLLib::QLAction *actionTaken = _problem->getAlgorithm()->step(myAgent->getCurrentState());
 			// Tell the agent which action to perform
-			_problem->getAgent()->setAgentAction(actionTaken);
+			myAgent->setAgentAction(actionTaken);
 			// Run action
-			actionTaken->performAction(_problem->getAgent()->getCurrentState());
+			actionTaken->performAction(myAgent->getCurrentState());
 			// Check if we reached the goal
 			_trialEnded = !_problem->step();
 			// Get the reward...
 			double reward = _problem->reward();
 			_rewardsPerTrial += reward;
 			// ...and pass it to the algorithm to update Q
-			_problem->getAlgorithm()->updateQ(_problem->getAgent()->getPreviousState(), _problem->getAgent()->getLastAction(), reward);
+			_problem->getAlgorithm()->updateQ(myAgent->getPreviousState(), myAgent->getLastAction(), reward, myAgent->getCurrentState());
 		}
 		// Signal the end of the simulation
 		_problem->endOfTrial();
 		_finishedTrials++;
 		// Get some stats
 		QLLib::Utils::Stats stats;
-		stats.rewardsPerTrial = 100-_rewardsPerTrial;
+		stats.rewardsPerTrial = _rewardsPerTrial;
 		stats.stepsPerTrial = _stepsPerTrial;
 		stats.totalSteps = _totalSteps;
 		stats.trialsCompleted = _finishedTrials;

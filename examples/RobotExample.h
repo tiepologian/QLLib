@@ -130,8 +130,8 @@ private:
 	 * Here, we specify the algorithm and policy we want to use
 	 */
 	virtual void setupAlgorithm() {
-		// We use 1.0 as the default Q-value
-		QLLib::QLAlgorithm *algorithm = new QLLib::QLearningAlgorithm(1.0);
+		// We use 0.0 as the default Q-value, 0.2 for alpha (learning rate) and 0.9 for gamma (discount factor)
+		QLLib::QLAlgorithm *algorithm = new QLLib::QLearningAlgorithm(1000.0, 0.2, 0.9);
 		QLLib::QLPolicy *policy = new QLLib::NormalPolicy();
 		algorithm->setPolicy(policy);
 		setAlgorithm(algorithm);
@@ -157,15 +157,17 @@ private:
 		if(_visitedInvalidPosition) {
 			_visitedInvalidPosition = false;
 			getAgent()->_previousState = getAgent()->getCurrentState();
-			return 0.0;
+			return -50.0;
 		} else {
 			// If the new state is valid, we calculate the reward (needs to be normalized)
 			State *currentState = dynamic_cast<State*>(getAgent()->getCurrentState());
 			double distanceX = abs(_goal->_x - currentState->_x);
 			double distanceY = abs(_goal->_y - currentState->_y);
 			double totalDistance = distanceX+distanceY;
-			double maxDistance = 20;
-			double reward = 1-(totalDistance/maxDistance);
+			double maxDistance = 18.0;
+			//double reward = 1.0-(totalDistance/maxDistance);
+			//reward *= 40.0;
+			double reward = maxDistance-totalDistance;
 			return reward;
 		}
 	};

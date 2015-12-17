@@ -33,11 +33,12 @@ int main(int argc, char *argv[]) {
 	ql->addEventListener([](QLLib::Utils::Stats stats) {
 		std::cout << "Finished trial: " << stats.trialsCompleted << std::endl;
 		std::cout << "Steps: " << stats.stepsPerTrial << std::endl;
-		std::cout << "Reward: " << stats.rewardsPerTrial << std::endl << std::endl;
+		std::cout << "Rewards/trial: " << stats.rewardsPerTrial << std::endl;
+		std::cout << "Rewards/step: " << stats.rewardsPerTrial/stats.stepsPerTrial << std::endl << std::endl;
 	});
 
 	// Run 10 simulations (if you don't specify a number, it will run forever)
-	ql->start(10);
+	ql->start(2000);
 
 	// Remember to clean-up!
 	delete ql;

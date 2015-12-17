@@ -82,7 +82,7 @@ public:
 	 */
 	QLLib::QLAlgorithm* getAlgorithm() {
 		if(_algorithm == nullptr) {
-			_algorithm = new QLLib::QLearningAlgorithm(0.0);
+			_algorithm = new QLLib::QLearningAlgorithm(0.0, 0.2, 0.9);
 			std::cout << "[WARNING] No algorithm specified, defaulting to QLearningAlgorithm" << std::endl;
 		}
 		return _algorithm;

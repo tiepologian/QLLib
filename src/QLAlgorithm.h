@@ -73,11 +73,12 @@ public:
 	/*
 	 * Updates the Q-value for the given state-action combination.
 	 * This method must be implemented by all algorithms.
-	 * \param state An instance of QLState
+	 * \param previousState An instance of QLState
 	 * \param action An instance of QLAction
-	 * \param r The reward
+	 * \param r The reward received after the state->action
+	 * \param currentState An instance of QLState
 	 */
-	virtual void updateQ(QLLib::QLState *state, QLLib::QLAction *action, double r) = 0;
+	virtual void updateQ(QLLib::QLState *previousState, QLLib::QLAction *action, double r, QLLib::QLState *currentState) = 0;
 protected:
 	double _initialQ;
 	std::vector<QLLib::QLAction*> _actions;
@@ -88,6 +89,7 @@ private:
 /*
  * QLearningAlgorithm Class
  * The QLearningAlgorithm class implements the Q-learning algorithm
+ * (http://www.cs.huji.ac.il/~nir/Papers/DFR1.pdf)
  */
 class QLearningAlgorithm : public QLAlgorithm {
 public:
@@ -95,7 +97,7 @@ public:
 	 * QLearningAlgorithm Constructor
 	 * \param initialQ The default Q-value for all state-action combinations
 	 */
-	QLearningAlgorithm(double initialQ) : QLAlgorithm(initialQ) {};
+	QLearningAlgorithm(double initialQ, double alpha, double gamma) : QLAlgorithm(initialQ), _alpha(alpha), _gamma(gamma) {};
 
 	virtual ~QLearningAlgorithm() {};
 
@@ -136,15 +138,44 @@ public:
 
 	/*
 	 * Updates the Q-value for the given state-action combination.
-	 * \param state An instance of QLState
+	 * \param previousState An instance of QLState
 	 * \param action An instance of QLAction
-	 * \param r The Q-value to save to the lookup table
+	 * \param r The reward received after the state->action
+	 * \param currentState An instance of QLState
+	 *
+	 * Q = Q(S,A) + alpha * (R + gamma * maxQ(S',A) - Q(S,A))
 	 */
-	virtual void updateQ(QLLib::QLState *state, QLLib::QLAction *action, double r) {
-		_table.setStateAndAction(*state, *action, r);
+	virtual void updateQ(QLLib::QLState *previousState, QLLib::QLAction *action, double r, QLLib::QLState *currentState) {
+		double oldQ = _table.lookupStateAndAction(*previousState, *action);
+		double maxQ = getMaxQ(currentState);
+		double newQ = oldQ + _alpha * (r + (_gamma * maxQ) - oldQ);
+		_table.setStateAndAction(*previousState, *action, newQ);
 	};
 private:
+	/*
+	 * Finds max Q value for the given state
+	 * \param state An instance of QLState
+	 */
+	double getMaxQ(QLLib::QLState *state) {
+		// allocate space for all actions
+		double q[_actions.size()];
+		// load Q for all actions
+		for(size_t i=0;i<_actions.size();i++) {
+			q[i] = _table.lookupStateAndAction(*state, *_actions[i]);
+		}
+		// find max Q
+		int maxIndex = 0;
+		for (size_t index = maxIndex; index < _actions.size(); index++) {
+			if (q[maxIndex] < q[index]) {
+				maxIndex = index;
+			}
+		}
+		return q[maxIndex];
+	};
+
 	QLLookupTable _table;
+	double _alpha;
+	double _gamma;
 };
 
 } /* namespace QLLib */
