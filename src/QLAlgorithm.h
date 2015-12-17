@@ -165,6 +165,7 @@ private:
 		}
 		// find max Q
 		// TODO: Fix this, as it's slightly biased when two or more values are equal
+		// FIX: Save all MAX indices in array, generate random int between 0 and array lenght-1 and return q[array[random]]
 		int maxIndex = 0;
 		for (size_t index = maxIndex; index < _actions.size(); index++) {
 			if (q[maxIndex] < q[index]) {

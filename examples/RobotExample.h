@@ -132,7 +132,7 @@ private:
 	virtual void setupAlgorithm() {
 		// We use 0.0 as the default Q-value, 0.2 for alpha (learning rate) and 0.9 for gamma (discount factor)
 		QLLib::QLAlgorithm *algorithm = new QLLib::QLearningAlgorithm(0.0, 0.2, 0.9);
-		QLLib::QLPolicy *policy = new QLLib::NormalPolicy();
+		QLLib::QLPolicy *policy = new QLLib::EpsilonGreedyPolicy(0.2);
 		algorithm->setPolicy(policy);
 		setAlgorithm(algorithm);
 	};

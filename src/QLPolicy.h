@@ -132,7 +132,7 @@ public:
 	/*
 	 * EpsilonGreedyPolicy Constructor
 	 */
-	EpsilonGreedyPolicy() {};
+	EpsilonGreedyPolicy(double epsilon) : _epsilon(epsilon) {};
 
 	virtual ~EpsilonGreedyPolicy() {};
 
@@ -140,22 +140,52 @@ public:
 	 * Apply the policy to the provided Q-values and get the chosen action
 	 */
 	virtual int sampleAction(double Q[], int count) {
-		// TODO
+		// Generate random double, is it < epsilon? then generate random
+		// else get best
+		double probability = Utils::fRand(0.0, 1.0);
+		if(probability < _epsilon) {
+			// Choose random action
+			return sampleRandomAction(count);
+		} else {
+			// Choose action with best Q
+			return sampleBestAction(Q, count);
+		}
 	};
 private:
 	/*
 	 * Samples the best action possible
 	 */
-	int sampleBestAction() {
-		// TODO
+	int sampleBestAction(double Q[], int count) {
+		if(QLLib::Utils::arrayValuesEqual(Q, count)) {
+			// all actions have same Q, choose randomly
+			return sampleRandomAction(count);
+		} else {
+			return getIndexOfLargestElement(Q, count);
+		}
 	};
 
 	/*
 	 * Samples a random action
 	 */
-	int sampleRandomAction() {
-		// TODO
+	int sampleRandomAction(int count) {
+		return Utils::iRand(0, count-1);
 	};
+
+	/*
+	 * Get action with largest Q
+	 */
+	int getIndexOfLargestElement(double arr[], int size) {
+		int largestIndex = 0;
+		// TODO: Fix this, as it gives slightly polarized results when there are equal values
+		for (int index = largestIndex; index < size; index++) {
+			if (arr[largestIndex] < arr[index]) {
+				largestIndex = index;
+			}
+		}
+		return largestIndex;
+	}
+
+	double _epsilon;
 };
 
 } /* namespace QLLib */
