@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
 		std::cout << "Rewards/step: " << stats.rewardsPerTrial/stats.stepsPerTrial << std::endl << std::endl;
 	});
 
-	// Run 10 simulations (if you don't specify a number, it will run forever)
-	ql->start(2000);
+	// Run 1000 simulations (if you don't specify a number, it will run forever)
+	ql->start(1000);
 
 	// Remember to clean-up!
 	delete ql;

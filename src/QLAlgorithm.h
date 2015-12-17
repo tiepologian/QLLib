@@ -164,6 +164,7 @@ private:
 			q[i] = _table.lookupStateAndAction(*state, *_actions[i]);
 		}
 		// find max Q
+		// TODO: Fix this, as it's slightly biased when two or more values are equal
 		int maxIndex = 0;
 		for (size_t index = maxIndex; index < _actions.size(); index++) {
 			if (q[maxIndex] < q[index]) {

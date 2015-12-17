@@ -49,7 +49,7 @@ public:
 
 /*
  * NormalPolicy Class
- * This class represents the traditional policy for Q-learning algorithm
+ * This class represents the traditional policy (Greedy) for Q-learning algorithm
  */
 class NormalPolicy : public QLPolicy {
 public:
@@ -61,7 +61,7 @@ public:
 	virtual ~NormalPolicy() {};
 
 	/*
-	 * Apply the policy to the provided Q-values and get the chosen action
+	 * Apply the policy to the provided Q-values and get the best possible action (greedy)
 	 * \param Q An array of Q-values
 	 * \param count The size of Q
 	 */

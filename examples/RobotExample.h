@@ -131,7 +131,7 @@ private:
 	 */
 	virtual void setupAlgorithm() {
 		// We use 0.0 as the default Q-value, 0.2 for alpha (learning rate) and 0.9 for gamma (discount factor)
-		QLLib::QLAlgorithm *algorithm = new QLLib::QLearningAlgorithm(1000.0, 0.2, 0.9);
+		QLLib::QLAlgorithm *algorithm = new QLLib::QLearningAlgorithm(0.0, 0.2, 0.9);
 		QLLib::QLPolicy *policy = new QLLib::NormalPolicy();
 		algorithm->setPolicy(policy);
 		setAlgorithm(algorithm);
@@ -153,22 +153,25 @@ private:
 	 * This method returns the reward for the new state
 	 */
 	virtual double reward() {
-		// If it's an invalid state, the reward is 0
+		// If it's an invalid state (crashing into the walls), the reward is -50
 		if(_visitedInvalidPosition) {
 			_visitedInvalidPosition = false;
 			getAgent()->_previousState = getAgent()->getCurrentState();
 			return -50.0;
 		} else {
-			// If the new state is valid, we calculate the reward (needs to be normalized)
+			// If the new state is valid, we calculate the reward
 			State *currentState = dynamic_cast<State*>(getAgent()->getCurrentState());
 			double distanceX = abs(_goal->_x - currentState->_x);
 			double distanceY = abs(_goal->_y - currentState->_y);
 			double totalDistance = distanceX+distanceY;
-			double maxDistance = 18.0;
-			//double reward = 1.0-(totalDistance/maxDistance);
-			//reward *= 40.0;
-			double reward = maxDistance-totalDistance;
-			return reward;
+			// We use relative rewards here: if the new state is nearer to the goal than the previous one,
+			// we return a positive reward; if not, we return a negative reward
+			if(totalDistance <= _distance) {
+				_distance = totalDistance;
+				return 10.0;
+			} else {
+				return -10.0;
+			}
 		}
 	};
 
@@ -183,6 +186,8 @@ private:
 
 	State *_goal = new State("Goal", 10, 10);
 	bool _visitedInvalidPosition = false;
+	// Set this to the max distance on a 10x10 grid
+	double _distance = 18.0;
 };
 
 #endif /* ROBOTEXAMPLE_H_ */
