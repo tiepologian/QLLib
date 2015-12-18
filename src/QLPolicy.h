@@ -140,8 +140,6 @@ public:
 	 * Apply the policy to the provided Q-values and get the chosen action
 	 */
 	virtual int sampleAction(double Q[], int count) {
-		// Generate random double, is it < epsilon? then generate random
-		// else get best
 		double probability = Utils::fRand(0.0, 1.0);
 		if(probability < _epsilon) {
 			// Choose random action
@@ -186,6 +184,56 @@ private:
 	}
 
 	double _epsilon;
+};
+
+/*
+ * SoftmaxPolicy Class
+ * This class implements the Softmax policy
+ */
+class SoftmaxPolicy : public QLPolicy {
+public:
+	/*
+	 * SoftmaxPolicy Constructor
+	 */
+	SoftmaxPolicy(double t) : _temperature(t) {};
+
+	virtual ~SoftmaxPolicy() {};
+
+	/*
+	 * Samples the best possible action based on the Softmax algorithm
+	 *
+	 * A = exp(Q/t) / E(exp(Q/t))
+	 *
+	 * A = chosen action
+	 * Q = Q-value for state-action
+	 * E = sum
+	 * t = temperature
+	 */
+	virtual int sampleAction(double Q[], int count) {
+		double pQ[count];
+		double totalP = 0.0;
+		// Calculate P of all actions
+		for(int i=0;i<count;i++) {
+			pQ[i] = exp(Q[i]/_temperature);
+			// Update sum of P
+			totalP+=pQ[i];
+		}
+		// Divide P by sum of all P
+		for(int i=0;i<count;i++) {
+			pQ[i] = pQ[i] / totalP;
+		}
+		// Randomly choose based on probability - http://stackoverflow.com/a/2649761
+		double p = (rand() / static_cast<double>(RAND_MAX)) * 1.0;
+		double* current = &pQ[0];
+		int index = 0;
+		while ((p -= *current) > 0) {
+		    ++current;
+		    index++;
+		}
+		return index;
+	};
+private:
+	double _temperature;
 };
 
 } /* namespace QLLib */
