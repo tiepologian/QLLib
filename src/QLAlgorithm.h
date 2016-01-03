@@ -49,6 +49,12 @@ public:
 	virtual void init(std::vector<QLLib::QLState*> states, std::vector<QLLib::QLAction*> actions) = 0;
 
 	/*
+	 * Utility method called when an episode starts
+	 * Use this to initialize any episode-specific variables
+	 */
+	virtual void initEpisode() {};
+
+	/*
 	 * Assigns a policy to the algorithm
 	 * \param policy An instance of QLPolicy
 	 */
@@ -114,6 +120,13 @@ public:
 			}
 		}
 	};
+
+	/*
+	 * Utility method called when an episode starts
+	 */
+	virtual void initEpisode() {
+		//
+	}
 
 	/*
 	 * Performs a step by passing the algorithm the current state.

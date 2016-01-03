@@ -82,6 +82,7 @@ private:
 		_stepsPerTrial = 0;
 		_rewardsPerTrial = 0.0;
 		QLLib::QLAgent *myAgent = _problem->getAgent();
+		_problem->getAlgorithm()->initEpisode();
 		while (!_trialEnded) {
 			_stepsPerTrial++;
 			_totalSteps++;
