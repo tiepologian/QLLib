@@ -193,6 +193,94 @@ private:
 	double _gamma;
 };
 
+/*
+ * SarsaAlgorithm Class
+ * The SarsaAlgorithm class implements the Sarsa On-policy TD control algorithm
+ * (http://www.cse.unsw.edu.au/~cs9417ml/RL1/algorithms.html)
+ */
+class SarsaAlgorithm: public QLAlgorithm {
+public:
+	/*
+	 * SarsaAlgorithm Constructor
+	 * \param initialQ The default Q-value for all state-action combinations
+	 */
+	SarsaAlgorithm(double initialQ, double alpha, double gamma) : QLAlgorithm(initialQ), _alpha(alpha), _gamma(gamma) {
+		_s1 = nullptr;
+		_a1 = nullptr;
+		_s2 = nullptr;
+		_a2 = nullptr;
+	};
+
+	/*
+	 * Initializes the Sarsa algorithm by setting the default value for all state-action combinations in the lookup table
+	 * \param states A vector of all available states
+	 * \param actions A vector of all available actions
+	 */
+	virtual void init(std::vector<QLLib::QLState*> states, std::vector<QLLib::QLAction*> actions) {
+		_actions = actions;
+		for (auto i : states) {
+			for (auto j : actions) {
+				_table.setStateAndAction(*i, *j, _initialQ);
+			}
+		}
+	};
+
+	/*
+	 * Performs a step by passing the algorithm the current state.
+	 * \param currentState The state the agent is currently in
+	 */
+	virtual QLLib::QLAction* step(QLLib::QLState *currentState) {
+		// If no policy has been provided to the algorithm, use NormalPolicy
+		if (getPolicy() == nullptr) {
+			QLLib::QLPolicy *normalPolicy = new QLLib::NormalPolicy();
+			setPolicy(normalPolicy);
+			std::cout << "[WARNING] No policy specified for QLearningAlgorithm, defaulting to NormalPolicy" << std::endl;
+		}
+		// allocate space for all actions
+		double q[_actions.size()];
+		// load Q-value for all actions
+		for (size_t i = 0; i < _actions.size(); i++) {
+			q[i] = _table.lookupStateAndAction(*currentState, *_actions[i]);
+		}
+		// return the best action based on the algorithm's policy
+		return _actions[getPolicy()->sampleAction(q, _actions.size())];
+	};
+
+	/*
+	 * Updates the Q-value for the given state-action combination.
+	 * \param previousState An instance of QLState
+	 * \param action An instance of QLAction
+	 * \param r The reward received after the state->action
+	 * \param currentState An instance of QLState
+	 *
+	 * Q = Q(S1,A1) + alpha * [R + gamma * Q(S2,A2) - Q(S,A)]
+	 */
+	virtual void updateQ(QLLib::QLState *previousState, QLLib::QLAction *action, double r, QLLib::QLState *currentState) {
+		_s1 = _s2;
+		_a1 = _a2;
+		_s2 = previousState;
+		_a2 = action;
+		// If the agent hasn't performed two actions yet, _s1 and _a1 will be null
+		// In this case, simply return and leave the default Q-value
+		if((_s1 == nullptr) || (_a1 == nullptr)) {
+			return;
+		}
+		double oldQ = _table.lookupStateAndAction(*_s1, *_a1);
+		double currentQ = _table.lookupStateAndAction(*_s2, *_a2);
+		double newQ = oldQ + _alpha * (r + (_gamma * currentQ) - oldQ);
+		_table.setStateAndAction(*_s1, *_a1, newQ);
+	};
+
+private:
+	QLLookupTable _table;
+	double _alpha;
+	double _gamma;
+	QLState *_s1;
+	QLAction *_a1;
+	QLState *_s2;
+	QLAction *_a2;
+};
+
 } /* namespace QLLib */
 
 #endif /* QLALGORITHM_H_ */
