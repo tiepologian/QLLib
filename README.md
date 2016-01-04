@@ -1,8 +1,8 @@
 # QLLib
-#### C++ Library to Learn Behaviours using Off Policy Q-Learning Reinforcement Learning
+#### C++ Library to Learn Behaviours using On/Off Policy Reinforcement Learning Algorithms
 
 QLLib is a Reinforcement Learning that implements several common RL algorithms. It is designed to be simple, fast and extremely flexible. In particular, QLLib currently features:
-* Temporal Difference Learning (Q-Learning algorithm)
+* Temporal Difference Learning (Q-Learning and SARSA algorithms)
 * Greedy, Epsilon-Greedy, Random and SoftMax policies
 * Optimizations for running simulations on high-performance servers
 * Additional flexibility achieved by giving you the right layer of separation between the core library and your custom simulations
